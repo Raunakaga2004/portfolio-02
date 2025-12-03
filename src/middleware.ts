@@ -1,0 +1,65 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
+import jwt from "jsonwebtoken";
+
+export async function middleware(req: NextRequest) {
+  const path = req.nextUrl.pathname;
+
+  // Public API routes (not protected)
+  const publicRoutes = [
+    "/api/contact",   // POST contact form
+    "/api/skills",    // GET skills is public
+    "/api/projects",  // GET projects is public
+    "/api/blogs",
+    "/api/about",
+    "/api/hero",
+  ];
+
+  // Allow GET requests for public endpoints
+  if (req.method === "GET") {
+    return NextResponse.next();
+  }
+
+  // If modifying routes → must be admin
+  const isPublic = publicRoutes.some((route) => path.startsWith(route));
+  if (!isPublic) {
+    // Now verify admin authentication
+
+    // Check Google NextAuth session
+    const session = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET!,
+    });
+
+    const isGoogleAdmin =
+      session?.email === process.env.ALLOWED_GOOGLE_ADMIN;
+
+    // Check ENV email/password admin via JWT cookie
+    const jwtToken = req.cookies.get("admin_token")?.value;
+
+    let isEnvAdmin = false;
+    if (jwtToken) {
+      try {
+        jwt.verify(jwtToken, process.env.NEXTAUTH_SECRET!);
+        isEnvAdmin = true;
+      } catch {}
+    }
+
+    // If neither type of admin is authenticated
+    if (!isGoogleAdmin && !isEnvAdmin) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: [
+    "/api/:path*",       // protect all API routes
+    "/admin/:path*",     // protect admin dashboard routes
+  ],
+};
