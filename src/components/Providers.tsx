@@ -16,11 +16,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  const isAdmin = pathname?.startsWith("/admin");
 
-  if (isAdmin) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

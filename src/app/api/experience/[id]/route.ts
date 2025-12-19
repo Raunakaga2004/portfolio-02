@@ -2,30 +2,46 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Params) {
-  const id = Number(params.id);
-  const cert = await prisma.experience.findUnique({ where: { id } });
+  try {
+    const { id: paramId } = await params;
+    const id = Number(paramId);
+    const experience = await prisma.experience.findUnique({ where: { id } });
 
-  if (!cert) return new NextResponse("Not found", { status: 404 });
-  return NextResponse.json(cert);
+    if (!experience) return new NextResponse("Not found", { status: 404 });
+    return NextResponse.json(experience);
+  } catch (error) {
+    return new NextResponse("Error fetching experience", { status: 500 });
+  }
 }
 
 export async function PUT(req: Request, { params }: Params) {
-  const id = Number(params.id);
-  const data = await req.json();
+  try {
+    const { id: paramId } = await params;
+    const id = Number(paramId);
+    const data = await req.json();
 
-  const cert = await prisma.experience.update({
-    where: { id },
-    data,
-  });
+    const experience = await prisma.experience.update({
+      where: { id },
+      data,
+    });
 
-  return NextResponse.json(cert);
+    return NextResponse.json(experience);
+  } catch (error) {
+    return new NextResponse("Error updating experience", { status: 500 });
+  }
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
-  const id = Number(params.id);
-  await prisma.experience.delete({ where: { id } });
-  return new NextResponse(null, { status: 204 });
+  try {
+    const { id: paramId } = await params;
+    const id = Number(paramId);
+    await prisma.experience.deleteMany({ where: { id } });
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    console.error("Error deleting experience:", error);
+    return new NextResponse("Error deleting experience", { status: 500 });
+  }
 }

@@ -8,6 +8,8 @@ import Contact from '@/components/Contact';
 import Achievements from '@/components/Achievements';
 import Experience from '@/components/Experience';
 
+import Footer from '@/components/Footer';
+
 export default function Home() {
   return (
     <div>
@@ -15,11 +17,12 @@ export default function Home() {
       <Hero />
       <Projects />
       <Skills />
-      <Experience/>
+      <Experience />
       <Certifications />
-      <Achievements/>
+      <Achievements />
       <About />
       <Contact />
+      {/* Footer removed as per request */}
     </div>
   );
 }

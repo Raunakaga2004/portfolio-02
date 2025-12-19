@@ -14,97 +14,100 @@ datasource db {
 }
 
 model SkillCategory {
-  id        Int      @id @default(autoincrement())
-  name      String
-  skills    Skill[]
+  id     Int     @id @default(autoincrement())
+  name   String
+  skills Skill[]
 }
 
 model Skill {
-  id             Int      @id @default(autoincrement())
-  name           String
-  level          Int?     // 1–100 for progress bar
-  categoryId     Int
-  category       SkillCategory @relation(fields: [categoryId], references: [id])
+  id         Int           @id @default(autoincrement())
+  name       String
+  level      Int? // 1–100 for progress bar
+  categoryId Int
+  category   SkillCategory @relation(fields: [categoryId], references: [id])
 
-  isLearning     Boolean  @default(false)   // mark skills under “Currently Learning”
+  isLearning Boolean @default(false) // mark skills under “Currently Learning”
 }
 
 model Project {
-  id            Int       @id @default(autoincrement())
-  title         String
-  description   String
-  techStack     String[]  // ["Next.js", "TypeScript", "Node", ...]
-  github        String?
-  liveUrl       String?
-  image         String?
-  createdAt     DateTime  @default(now())
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  techStack   String[] // ["Next.js", "TypeScript", "Node", ...]
+  github      String?
+  liveUrl     String?
+  image       String?
+  visible     Boolean  @default(true)
+  createdAt   DateTime @default(now())
 }
 
 model Certification {
-  id          Int      @id @default(autoincrement())
-  title       String
-  issuer      String
-  issueDate   DateTime
-  credentialId String? 
+  id            Int      @id @default(autoincrement())
+  title         String
+  issuer        String
+  issueDate     DateTime
+  credentialId  String?
   credentialUrl String?
 }
 
 model Achievement {
-  id        Int      @id @default(autoincrement())
-  title     String
-  detail    String?
-  date      DateTime?
+  id     Int       @id @default(autoincrement())
+  title  String
+  detail String?
+  date   DateTime?
 }
 
 model Experience {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   role        String
   company     String
   startDate   DateTime
-  endDate     DateTime?   // null = currently working
+  endDate     DateTime? // null = currently working
   description String?
   techUsed    String[]
 }
 
 model Blog {
-  id          Int      @id @default(autoincrement())
-  title       String
-  slug        String    @unique
-  content     String
-  coverImage  String?
-  published   Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id         Int      @id @default(autoincrement())
+  title      String
+  slug       String   @unique
+  content    String
+  coverImage String?
+  published  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model ContactMessage {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String
-  message   String
-  sentAt    DateTime @default(now())
+  id      Int      @id @default(autoincrement())
+  name    String
+  email   String
+  message String
+  sentAt  DateTime @default(now())
 }
 
 model HeroSection {
-  id            Int      @id @default(autoincrement())
-  headline      String    // main line
-  subheadline   String?   // supporting line
+  id          Int     @id @default(autoincrement())
+  headline    String // main line
+  subheadline String? // supporting line
 
-  primaryBtnText  String?
-  primaryBtnLink  String?
+  primaryBtnText String?
+  primaryBtnLink String?
 
   secondaryBtnText String?
   secondaryBtnLink String?
 
-  imageUrl      String?   // optional hero image
-  updatedAt     DateTime  @updatedAt
+  imageUrl  String? // optional hero image
+  updatedAt DateTime @updatedAt
 }
 
 model AboutSection {
   id          Int      @id @default(autoincrement())
-  shortIntro  String    // 1–2 lines
-  description String     // full paragraph
-  highlights  String[]   // ["Full-stack", "MERN", "TypeScript"]
-  imageUrl    String?    // optional profile/portrait
-  updatedAt   DateTime   @updatedAt
+  shortIntro  String // 1–2 lines
+  description String // full paragraph
+  highlights  String[] // ["Full-stack", "MERN", "TypeScript"]
+  imageUrl    String? // optional profile/portrait
+  btnText     String?
+  btnLink     String?
+  updatedAt   DateTime @updatedAt
 }

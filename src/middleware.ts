@@ -13,6 +13,9 @@ export async function middleware(req: NextRequest) {
     "/api/blogs",
     "/api/about",
     "/api/hero",
+    "/api/admin-login",
+    "/admin/login",
+    "/api/auth",
   ];
 
   // Allow GET requests for public endpoints

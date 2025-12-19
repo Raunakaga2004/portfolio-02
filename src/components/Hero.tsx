@@ -1,8 +1,19 @@
-const Hero = () => {
+import { prisma } from "@/lib/prisma";
+import { HeroContent } from "./HeroContent";
+
+const Hero = async () => {
+  const hero = await prisma.heroSection.findFirst();
+
   return (
-    <section id="hero" className="min-h-screen flex items-center justify-center">
-      <h1>Hero Section</h1>
-    </section>
+    <HeroContent
+      headline={hero?.headline}
+      subheadline={hero?.subheadline}
+      primaryBtnText={hero?.primaryBtnText}
+      primaryBtnLink={hero?.primaryBtnLink}
+      secondaryBtnText={hero?.secondaryBtnText}
+      secondaryBtnLink={hero?.secondaryBtnLink}
+      imageUrl={hero?.imageUrl}
+    />
   );
 };
 

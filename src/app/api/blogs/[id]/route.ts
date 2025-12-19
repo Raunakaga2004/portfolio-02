@@ -2,30 +2,45 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-type Params = { params: { id: string } };
+type Params = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Params) {
-  const id = Number(params.id);
-  const blog = await prisma.blog.findUnique({ where: { id } });
+  try {
+    const { id: paramId } = await params;
+    const id = Number(paramId);
+    const blog = await prisma.blog.findUnique({ where: { id } });
 
-  if (!blog) return new NextResponse("Not found", { status: 404 });
-  return NextResponse.json(blog);
+    if (!blog) return new NextResponse("Not found", { status: 404 });
+    return NextResponse.json(blog);
+  } catch (error) {
+    return new NextResponse("Error fetching blog", { status: 500 });
+  }
 }
 
 export async function PUT(req: Request, { params }: Params) {
-  const id = Number(params.id);
-  const data = await req.json();
+  try {
+    const { id: paramId } = await params;
+    const id = Number(paramId);
+    const data = await req.json();
 
-  const blog = await prisma.blog.update({
-    where: { id },
-    data,
-  });
+    const blog = await prisma.blog.update({
+      where: { id },
+      data,
+    });
 
-  return NextResponse.json(blog);
+    return NextResponse.json(blog);
+  } catch (error) {
+    return new NextResponse("Error updating blog", { status: 500 });
+  }
 }
 
 export async function DELETE(_req: Request, { params }: Params) {
-  const id = Number(params.id);
-  await prisma.blog.delete({ where: { id } });
-  return new NextResponse(null, { status: 204 });
+  try {
+    const { id: paramId } = await params;
+    const id = Number(paramId);
+    await prisma.blog.delete({ where: { id } });
+    return new NextResponse(null, { status: 204 });
+  } catch (error) {
+    return new NextResponse("Error deleting blog", { status: 500 });
+  }
 }
