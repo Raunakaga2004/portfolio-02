@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 import { getServerSession } from "next-auth";
 import Sidebar from "./components/Sidebar";
 import VisitorChart from "./components/VisitorChart";
@@ -20,7 +20,10 @@ export default async function Dashboard() {
 
   if (token) {
     try {
-      jwt.verify(token, process.env.NEXTAUTH_SECRET!);
+      await jwtVerify(
+        token,
+        new TextEncoder().encode(process.env.NEXTAUTH_SECRET!)
+      );
       isEnvAdmin = true;
     } catch { }
   }

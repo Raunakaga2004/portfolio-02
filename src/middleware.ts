@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
-import jwt from "jsonwebtoken";
+import { jwtVerify } from "jose";
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -43,7 +43,8 @@ export async function middleware(req: NextRequest) {
     let isEnvAdmin = false;
     if (jwtToken) {
       try {
-        jwt.verify(jwtToken, process.env.NEXTAUTH_SECRET!);
+        const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET!);
+        await jwtVerify(jwtToken, secret);
         isEnvAdmin = true;
       } catch {}
     }

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { SignJWT } from "jose";
 
 export async function POST(req: Request) {
   try {
@@ -13,11 +13,12 @@ export async function POST(req: Request) {
         throw new Error("NEXTAUTH_SECRET is missing");
       }
 
-      const token = jwt.sign(
-        { role: "admin" },
-        process.env.NEXTAUTH_SECRET,
-        { expiresIn: "7d" }
-      );
+      const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
+      const token = await new SignJWT({ role: "admin" })
+        .setProtectedHeader({ alg: "HS256" })
+        .setIssuedAt()
+        .setExpirationTime("7d")
+        .sign(secret);
 
       const redirectUrl = new URL("/admin/", req.url);
       const response = NextResponse.redirect(redirectUrl);
