@@ -38,9 +38,10 @@ export async function DELETE(_req: Request, { params }: Params) {
   try {
     const { id: paramId } = await params;
     const id = Number(paramId);
-    await prisma.blog.delete({ where: { id } });
+    await prisma.blog.deleteMany({ where: { id } });
     return new NextResponse(null, { status: 204 });
   } catch (error) {
+    console.error("Error deleting blog:", error);
     return new NextResponse("Error deleting blog", { status: 500 });
   }
 }

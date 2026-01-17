@@ -7,6 +7,7 @@ import About from '@/components/About';
 import Contact from '@/components/Contact';
 import Achievements from '@/components/Achievements';
 import Experience from '@/components/Experience';
+import Blogs from '@/components/Blogs';
 
 import Footer from '@/components/Footer';
 
@@ -21,8 +22,9 @@ export default function Home() {
       <Certifications />
       <Achievements />
       <About />
+      <Blogs />
       <Contact />
-      {/* Footer removed as per request */}
+      <Footer />
     </div>
   );
 }

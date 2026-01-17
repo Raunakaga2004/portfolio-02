@@ -57,10 +57,10 @@ const About = async () => {
               {about.btnText && about.btnLink && (
                 <Link
                   href={about.btnLink}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 dark:bg-gray-900 text-white font-medium rounded-full hover:bg-blue-700 dark:hover:bg-black transition-colors shadow-lg"
+                  className="group inline-flex items-center gap-2 px-8 py-3 bg-blue-600 dark:bg-black text-white font-medium rounded-full hover:scale-105 transition-all shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900"
                 >
                   {about.btnText}
-                  <ArrowRight size={18} />
+                  <ArrowRight size={18} className="transition-transform group-hover:translate-x-1" />
                 </Link>
               )}
             </div>

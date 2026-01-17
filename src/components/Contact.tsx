@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Mail, Send, Loader2, Phone, Linkedin, Github } from "lucide-react";
 import axios from "axios";
 
+// Force recompile
 export default function Contact() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -155,9 +156,9 @@ export default function Contact() {
               <button
                 type="submit"
                 disabled={loading || success}
-                className={`w-full py-4 rounded-xl font-bold text-white flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-[0.98] ${success
+                className={`group w-full py-4 rounded-full font-bold text-lg text-white flex items-center justify-center gap-2 transition-all transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 focus:ring-offset-gray-900 shadow-lg ${success
                   ? "bg-green-600 hover:bg-green-700"
-                  : "bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20"
+                  : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/20"
                   }`}
               >
                 {loading ? (
@@ -166,7 +167,7 @@ export default function Contact() {
                   "Message Sent Successfully!"
                 ) : (
                   <>
-                    Send Message <Send size={18} />
+                    Send Message <Send size={18} className="transition-transform group-hover:translate-x-1" />
                   </>
                 )}
               </button>
