@@ -3,75 +3,98 @@ import { getToken } from "next-auth/jwt";
 import { jwtVerify } from "jose";
 
 export async function middleware(req: NextRequest) {
-  const path = req.nextUrl.pathname;
+  const { pathname } = req.nextUrl;
 
-  // Public API routes (not protected)
+  /* -----------------------------
+     1. Always allow NextAuth
+  --------------------------------*/
+  if (pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
+  /* -----------------------------
+     2. Public routes (no auth)
+  --------------------------------*/
   const publicRoutes = [
-    "/api/contact",   // POST contact form
-    "/api/skills",    // GET skills is public
-    "/api/projects",  // GET projects is public
+    "/api/contact",
+    "/api/skills",
+    "/api/projects",
     "/api/blogs",
     "/api/about",
     "/api/hero",
     "/api/admin-login",
     "/admin/login",
-    "/api/auth",
   ];
 
-  // Allow GET requests for public endpoints
-  if (req.method === "GET") {
+  const isPublic = publicRoutes.some(route =>
+    pathname.startsWith(route)
+  );
+
+  if (isPublic) {
     return NextResponse.next();
   }
 
-  // If modifying routes → must be admin
-  const isPublic = publicRoutes.some((route) => path.startsWith(route));
-  if (!isPublic) {
-    // Now verify admin authentication
+  /* -----------------------------
+     3. Check Google / NextAuth admin
+  --------------------------------*/
+  let isGoogleAdmin = false;
 
-    // Check Google NextAuth session
-    let session = null;
+  try {
+    const session = await getToken({
+      req,
+      secret: process.env.NEXTAUTH_SECRET,
+    });
+
+    if (session?.email === process.env.ALLOWED_GOOGLE_ADMIN) {
+      isGoogleAdmin = true;
+    }
+  } catch {
+    // ignore — Edge-safe
+  }
+
+  /* -----------------------------
+     4. Check ENV admin JWT cookie
+  --------------------------------*/
+  let isEnvAdmin = false;
+  const jwtToken = req.cookies.get("admin_token")?.value;
+
+  if (jwtToken && process.env.ADMIN_JWT_SECRET) {
     try {
-      if (process.env.NEXTAUTH_SECRET) {
-        session = await getToken({
-          req,
-          secret: process.env.NEXTAUTH_SECRET,
-        });
-      }
-    } catch (error) {
-      console.error("Middleware Auth Error:", error);
-      // Fallback to null session
+      const secret = new TextEncoder().encode(
+        process.env.ADMIN_JWT_SECRET
+      );
+      await jwtVerify(jwtToken, secret);
+      isEnvAdmin = true;
+    } catch {
+      // invalid token → treated as unauthenticated
     }
+  }
 
-    const isGoogleAdmin =
-      session?.email === process.env.ALLOWED_GOOGLE_ADMIN;
-
-    // Check ENV email/password admin via JWT cookie
-    const jwtToken = req.cookies.get("admin_token")?.value;
-
-    let isEnvAdmin = false;
-    if (jwtToken) {
-      try {
-        const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET!);
-        await jwtVerify(jwtToken, secret);
-        isEnvAdmin = true;
-      } catch {}
-    }
-
-    // If neither type of admin is authenticated
-    if (!isGoogleAdmin && !isEnvAdmin) {
+  /* -----------------------------
+     5. Block unauthorized access
+  --------------------------------*/
+  if (!isGoogleAdmin && !isEnvAdmin) {
+    // API → 401 JSON
+    if (pathname.startsWith("/api")) {
       return NextResponse.json(
         { error: "Unauthorized" },
         { status: 401 }
       );
+    }
+
+    // Pages → redirect (NO JSON!)
+    if (pathname.startsWith("/admin")) {
+      const loginUrl = new URL("/admin/login", req.url);
+      return NextResponse.redirect(loginUrl);
     }
   }
 
   return NextResponse.next();
 }
 
+/* -----------------------------
+   6. Matcher (precise & safe)
+--------------------------------*/
 export const config = {
-  matcher: [
-    "/api/:path*",       // protect all API routes
-    "/admin/:path*",     // protect admin dashboard routes
-  ],
+  matcher: ["/api/:path*", "/admin/:path*"],
 };
