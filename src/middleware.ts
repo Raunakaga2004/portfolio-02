@@ -29,10 +29,18 @@ export async function middleware(req: NextRequest) {
     // Now verify admin authentication
 
     // Check Google NextAuth session
-    const session = await getToken({
-      req,
-      secret: process.env.NEXTAUTH_SECRET!,
-    });
+    let session = null;
+    try {
+      if (process.env.NEXTAUTH_SECRET) {
+        session = await getToken({
+          req,
+          secret: process.env.NEXTAUTH_SECRET,
+        });
+      }
+    } catch (error) {
+      console.error("Middleware Auth Error:", error);
+      // Fallback to null session
+    }
 
     const isGoogleAdmin =
       session?.email === process.env.ALLOWED_GOOGLE_ADMIN;
