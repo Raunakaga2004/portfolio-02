@@ -2,13 +2,14 @@ import { prisma } from "@/lib/prisma";
 import { cookies } from "next/headers";
 import { jwtVerify } from "jose";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import Sidebar from "./components/Sidebar";
 import VisitorChart from "./components/VisitorChart";
 import { Users, Code, Briefcase, FileText, ArrowUpRight } from "lucide-react";
 
 export default async function Dashboard() {
   // CHECK GOOGLE ADMIN LOGIN
-  const session = await getServerSession();
+  const session = await getServerSession(authOptions);
   const isGoogleAdmin =
     session?.user?.email === process.env.ALLOWED_GOOGLE_ADMIN;
 
